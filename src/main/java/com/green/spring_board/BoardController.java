@@ -1,5 +1,6 @@
 package com.green.spring_board;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,12 +8,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/board")
+@AllArgsConstructor
 public class BoardController {
     private BoardRepository boardRepository;
-
-    public BoardController(BoardRepository boardRepository){
-        this.boardRepository = boardRepository;
-    }
 
     // 전체 조회
     @GetMapping // 여기에는 경로를 추가 하지 않는 이유는 REST API URL 네이밍 규칙 위반(URL + HTTP + Method 조합으로 결과를 예측가능 해야함)
@@ -23,7 +21,11 @@ public class BoardController {
     // 상세 조회
     @GetMapping("/{id}")
     public Boards getBoardDetail(@PathVariable int id){
-        return boardRepository.findById(id).get();
+        Boards board = boardRepository.findById(id).get();
+        board.setHits(board.getHits() + 1);
+        boardRepository.save(board);
+
+        return board;
     }
 
     // 삽입
@@ -49,6 +51,9 @@ public class BoardController {
         }
         if (boardCreateRequest.getContent() != null){
             board.setContent(boardCreateRequest.getContent());
+        }
+        if (boardCreateRequest.getHits() > 0){
+            board.setHits(boardCreateRequest.getHits());
         }
 
         boardRepository.save(board);
