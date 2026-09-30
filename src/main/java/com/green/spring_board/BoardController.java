@@ -15,9 +15,15 @@ public class BoardController {
     }
 
     // 전체 조회
-    @GetMapping
+    @GetMapping // 여기에는 경로를 추가 하지 않는 이유는 REST API URL 네이밍 규칙 위반(URL + HTTP + Method 조합으로 결과를 예측가능 해야함)
     public List<Boards> getBoards(){
         return boardRepository.findAll();
+    }
+
+    // 상세 조회
+    @GetMapping("/{id}")
+    public Boards getBoardDetail(@PathVariable int id){
+        return boardRepository.findById(id).get();
     }
 
     // 삽입
@@ -31,8 +37,26 @@ public class BoardController {
     }
 
     // 수정
+    @PatchMapping("/{id}")
+    public void updateBoard(
+            @PathVariable int id,
+            @RequestBody BoardCreateRequest boardCreateRequest
+    ) {
+        Boards board = boardRepository.findById(id).get();
 
+        if (boardCreateRequest.getTitle() != null){
+            board.setTitle(boardCreateRequest.getTitle());
+        }
+        if (boardCreateRequest.getContent() != null){
+            board.setContent(boardCreateRequest.getContent());
+        }
+
+        boardRepository.save(board);
+    }
 
     // 삭제
-
+    @DeleteMapping("/{id}")
+    public void deleteBoard(@PathVariable int id) {
+        boardRepository.deleteById(id);
+    }
 }
