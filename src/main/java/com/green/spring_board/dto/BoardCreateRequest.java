@@ -13,5 +13,4 @@ import lombok.Setter;
 public class BoardCreateRequest {
     private String title;
     private String content;
-    private int hits;
 }

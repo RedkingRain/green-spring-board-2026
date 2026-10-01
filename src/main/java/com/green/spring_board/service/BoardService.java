@@ -62,14 +62,12 @@ public class BoardService {
 
         if (
                 (boardCreateRequest.getTitle() == null || boardCreateRequest.getTitle().isBlank()) ||
-                (boardCreateRequest.getContent() == null || boardCreateRequest.getContent().isBlank()) ||
-                (boardCreateRequest.getHits() <= 0)
+                (boardCreateRequest.getContent() == null || boardCreateRequest.getContent().isBlank())
         ) {
             return -1;
         } else {
             board.setTitle(boardCreateRequest.getTitle());
             board.setContent(boardCreateRequest.getContent());
-            board.setHits(boardCreateRequest.getHits());
         }
 
         boardRepository.save(board);
