@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "boards") // 실제 테이블 명 기입
@@ -26,4 +30,12 @@ public class Board {
 
     @Column(nullable = false)   // NOT NULL
     private int hits;
+
+//    @CreatedDate  : db에 해당 컬럼이 defualt 설정이 안되어있다면, jpa가 생성일자를 자동으로 채워 넣는다. (단, 데이터 값이 있는 경우 제외)
+//    @LastModifiedDate : db에 해당 컬럼이 defualt 설정이 안되어있다면, jpa가 수정일자를 자동으로 채워 넣는다.
+    @Column(nullable = false, insertable = false, updatable = false)
+    private LocalDateTime createdDatetime;
+
+    @Column(nullable = false, insertable = false, updatable = false)
+    private LocalDateTime updatedDatetime;
 }
