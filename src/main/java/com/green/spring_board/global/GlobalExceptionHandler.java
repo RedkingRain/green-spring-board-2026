@@ -1,5 +1,6 @@
 package com.green.spring_board.global;
 
+import com.green.spring_board.dto.ApiResponse;
 import com.green.spring_board.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -28,61 +29,75 @@ public class GlobalExceptionHandler {
 
     // 요청한 데이터, 있어야 할 데이터가 없을 때 공통 처리(404)
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Void> handleNotFound(ResourceNotFoundException e) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException e) {
+//        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.fail(e.getMessage()));
     }
 
     // 인증 정보가 없거나 적절하지 않을 때 공통 처리(사용자 정의 에러 - UnauthenticatedException)(401)
     @ExceptionHandler(UnauthenticatedException.class)
-    public ResponseEntity<Void> handleUnauthenticated(UnauthenticatedException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<ApiResponse<Void>> handleUnauthenticated(UnauthenticatedException e) {
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail(e.getMessage()));
     }
 
     // Validator 등 입력 검증 과정에서 문제 발생 시 공통 처리(400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationError(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResponse<String>> handleValidationError(MethodArgumentNotValidException e) {
         String resultMessage = "";
         List<FieldError> errors = e.getBindingResult().getFieldErrors();
         for (FieldError error : errors) {
             resultMessage = resultMessage + error.getField() + "은(는)" + error.getDefaultMessage() + "\n";
         }
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
+//                .body(resultMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
-                .body(resultMessage);
+//                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
+                .body(ApiResponse.fail(resultMessage));
     }
 
     // DB에서 고유값이 중복되어 저장에 실패하거나, 존재하지 않는 외채키 이용해 데이터 생성 시도등 문제 상황 공통 처리(400)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<String> handleDataConflict(DataIntegrityViolationException e) {
+    public ResponseEntity<ApiResponse<String>> handleDataConflict(DataIntegrityViolationException e) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
+//                .body("중복되거나 저장할 수 없는 데이터입니다.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
-                .body("중복되거나 저장할 수 없는 데이터입니다.");
+//                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
+                .body(ApiResponse.fail("중복되거나 저장할 수 없는 데이터입니다."));
     }
 
     // 세션 로그인 방식 이메일 중복 방지
     // TODO::JMT 로그인 구현 후 불필요
     @ExceptionHandler(ResourceConflictException.class)
-    public ResponseEntity<String> handleConflict(ResourceConflictException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    public ResponseEntity<ApiResponse<String>> handleConflict(ResourceConflictException e) {
+//        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(e.getMessage()));
     }
 
     // 이 외의 예외들은 모두 여기서 공통 처리(500)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
+    public ResponseEntity<ApiResponse<String>> handleException(Exception e) {
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
+//                .body("서버에서 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
-                .body("서버에서 오류가 발생했습니다.");
+//                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
+                .body(ApiResponse.fail("서버에서 오류가 발생했습니다."));
     }
 
     // 작업 실행 권한이 없을 때(403)
     @ExceptionHandler(AuthorizationFailureException.class)
-    public ResponseEntity<String> handleForbidden(AuthorizationFailureException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    public ResponseEntity<ApiResponse<String>> handleForbidden(AuthorizationFailureException e) {
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.fail(e.getMessage()));
     }
 
     // (400)
     @ExceptionHandler(InvalidStateException.class)
-    public ResponseEntity<String> handleBadRequest(InvalidStateException e) {
-        return ResponseEntity.badRequest().build();
+    public ResponseEntity<ApiResponse<String>> handleBadRequest(InvalidStateException e) {
+//        return ResponseEntity.badRequest().build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.fail(e.getMessage()));
     }
 }

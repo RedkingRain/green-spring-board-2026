@@ -1,15 +1,13 @@
 package com.green.spring_board.controller;
 
-import com.green.spring_board.dto.LoginRequest;
-import com.green.spring_board.dto.MyInfoResponse;
-import com.green.spring_board.dto.SignupRequest;
-import com.green.spring_board.dto.UserUpdateRequest;
+import com.green.spring_board.dto.*;
 import com.green.spring_board.exceptions.UnauthenticatedException;
 import com.green.spring_board.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,13 +18,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequest signupRequest) {
         userService.signup(signupRequest);
-        return ResponseEntity.ok().build();
+//        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<ApiResponse<Void>> login(
             @Valid @RequestBody LoginRequest loginRequest,      // @Valid로 LoginRequest DTO에 적용한 @NotBlank 어노테이션 규칙을 반영하여 검사 실행, 해당 어노테이션이 없으면 규칙만 만들어 놓은 상태라고 봐야함.
             HttpServletRequest httpServletRequest
     ) {
@@ -40,11 +39,12 @@ public class UserController {
         httpServletRequest.changeSessionId();
         session.setAttribute("userId", userId); // 세션 값에 userId 항목 추가(세션이 어떤 계정에 대한 세션인지 알기 위해)
 
-        return ResponseEntity.ok().build();
+//        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MyInfoResponse> getCurrentUser(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<MyInfoResponse>> getCurrentUser(HttpServletRequest request) {
         // "내" 정보 조회하기
         // 1. 이사람의 세션을 가져옴
         /*
@@ -66,11 +66,12 @@ public class UserController {
         MyInfoResponse myInfoResponse = userService.getUserInfo(userId);
 
         // 5. 돌려줌
-        return ResponseEntity.ok().body(myInfoResponse);
+//        return ResponseEntity.ok().body(myInfoResponse);
+        return ResponseEntity.ok().body(ApiResponse.ok(myInfoResponse));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("userId") == null) {
@@ -78,11 +79,12 @@ public class UserController {
         }
 
         session.invalidate(); // 세션 만료 처리
-        return ResponseEntity.ok().build();
+//        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<Void> updateUserInfo(
+    public ResponseEntity<ApiResponse<Void>> updateUserInfo(
             HttpServletRequest request,
             @Valid @RequestBody UserUpdateRequest userUpdateRequest
     ) {
@@ -99,11 +101,12 @@ public class UserController {
         int userId = (int) session.getAttribute("userId");
         userService.updateUserInfo(userId, userUpdateRequest);
 
-        return ResponseEntity.ok().build();
+//        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteUser(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("userId") == null) {
@@ -116,6 +119,8 @@ public class UserController {
         // 2. 세션 비활성화
         session.invalidate();
 
-        return ResponseEntity.noContent().build();
+//        return ResponseEntity.noContent().build();
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.ok());
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 }
