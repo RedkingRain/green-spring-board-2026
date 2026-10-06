@@ -85,6 +85,17 @@ public class BoardController {
         if (session == null || session.getAttribute("userId") == null) {
             throw new UnauthenticatedException("로그인이 필요합니다.");
         }
+        if (!session.getAttribute("userId").equals(id)) {
+            throw new UnauthenticatedException("게시물 소유자만 삭제할 수 있습니다.");
+        }
+
+        // 둘 중 어느 방법을 쓸 지는 속한 팀, 조직 컨벤션 따르기
+
+        // 삭제 성공 시 응답 방법 1.
+        // 200 + ApiResponse<Void>
+
+        // 삭제 성공 시 응답 방법 2.
+        // 204(No Content) + No Body
         boardService.deleteBoard(id);
 //        return ResponseEntity.noContent().build();  // 204 Return
 //        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.ok());
