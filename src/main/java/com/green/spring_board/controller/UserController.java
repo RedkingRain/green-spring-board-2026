@@ -3,6 +3,7 @@ package com.green.spring_board.controller;
 import com.green.spring_board.dto.LoginRequest;
 import com.green.spring_board.dto.MyInfoResponse;
 import com.green.spring_board.dto.SignupRequest;
+import com.green.spring_board.dto.UserUpdateRequest;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
@@ -10,6 +11,7 @@ import com.green.spring_board.exceptions.UserRequestException;
 import com.green.spring_board.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest signupRequest) {
         try {
             userService.signup(signupRequest);
             return ResponseEntity.ok().build();
@@ -37,7 +39,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(
-            @RequestBody LoginRequest loginRequest,
+            @Valid @RequestBody LoginRequest loginRequest,      // @Valid로 LoginRequest DTO에 적용한 @NotBlank 어노테이션 규칙을 반영하여 검사 실행, 해당 어노테이션이 없으면 규칙만 만들어 놓은 상태라고 봐야함.
             HttpServletRequest httpServletRequest
     ) {
         try {
@@ -114,7 +116,7 @@ public class UserController {
     @PatchMapping("/update")
     public ResponseEntity<Void> updateUserInfo(
             HttpServletRequest request,
-            @RequestBody MyInfoResponse myInfoResponse
+            @Valid @RequestBody UserUpdateRequest userUpdateRequest
     ) {
         // 이메일 닉네임 업데이트
         // 현재 유저를 가져와서, 해당 유저 정보를
@@ -128,7 +130,7 @@ public class UserController {
             }
 
             int userId = (int) session.getAttribute("userId");
-            userService.updateUserInfo(userId, myInfoResponse);
+            userService.updateUserInfo(userId, userUpdateRequest);
 
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException e) {

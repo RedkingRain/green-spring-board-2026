@@ -3,6 +3,7 @@ package com.green.spring_board.service;
 import com.green.spring_board.dto.LoginRequest;
 import com.green.spring_board.dto.MyInfoResponse;
 import com.green.spring_board.dto.SignupRequest;
+import com.green.spring_board.dto.UserUpdateRequest;
 import com.green.spring_board.entity.User;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
@@ -25,9 +26,10 @@ public class UserService {
     // 회원가입
     public void signup(SignupRequest signupRequest) {
         // 이메일과 비밀번호가 공백이 아닌지 확인
-        if (signupRequest.getEmail().isBlank() || signupRequest.getPassword().isBlank()) {
-            throw new UserRequestException("Email or Password cannot be blank");
-        }
+        // @Valid & @NotBlank 로 해당 체크 대체
+//        if (signupRequest.getEmail().isBlank() || signupRequest.getPassword().isBlank()) {
+//            throw new UserRequestException("Email or Password cannot be blank");
+//        }
 
         // 이메일이 사용 중인지 확인
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
@@ -48,9 +50,10 @@ public class UserService {
     // 로그인
     public int login(LoginRequest loginRequest) {
         // 1.이메일과 비밀번호가 공백이 아닌지 확인
-        if (loginRequest.getEmail().isBlank() || loginRequest.getPassword().isBlank()) {
-            throw new UserRequestException("Email or Password cannot be blank");
-        }
+        // @Valid & @NotBlank 로 해당 체크 대체
+//        if (loginRequest.getEmail().isBlank() || loginRequest.getPassword().isBlank()) {
+//            throw new UserRequestException("Email or Password cannot be blank");
+//        }
 
         // 2. 이메일 존재하는건지 확인
         Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
@@ -86,27 +89,27 @@ public class UserService {
     }
 
     // 회원 정보 수정
-    public void updateUserInfo(int userId, MyInfoResponse myInfoResponse) {
+    public void updateUserInfo(int userId, UserUpdateRequest userUpdateRequest) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("User Info Not Found!");
         }
 
-        if (userRepository.existsByEmail(myInfoResponse.getEmail())) {
+        if (userRepository.existsByEmail(userUpdateRequest.getEmail())) {
             throw new ResourceConflictException("Email already exists");
         }
 
         User user = optionalUser.get();
 
         if (
-                (myInfoResponse.getEmail() == null || myInfoResponse.getEmail().isBlank())
-             || (myInfoResponse.getNickname() == null || myInfoResponse.getNickname().isBlank())
+                (userUpdateRequest.getEmail() == null || userUpdateRequest.getEmail().isBlank())
+             || (userUpdateRequest.getNickname() == null || userUpdateRequest.getNickname().isBlank())
         ){
             throw new UserRequestException("잘못된 입력값 입니다.");
         }
 
-        user.setEmail(myInfoResponse.getEmail());
-        user.setNickname(myInfoResponse.getNickname());
+        user.setEmail(userUpdateRequest.getEmail());
+        user.setNickname(userUpdateRequest.getNickname());
 
         userRepository.save(user);
     }
