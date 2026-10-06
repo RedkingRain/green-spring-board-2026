@@ -5,7 +5,6 @@ import com.green.spring_board.dto.BoardUpdateRequest;
 import com.green.spring_board.entity.User;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
-import com.green.spring_board.exceptions.UserRequestException;
 import com.green.spring_board.dto.BoardCreateRequest;
 import com.green.spring_board.repository.BoardRepository;
 import com.green.spring_board.entity.Board;
@@ -64,7 +63,7 @@ public class BoardService {
         board.setHits(board.getHits() + 1);
         boardRepository.save(board);
 
-        BoardResponse boardResponse = new BoardResponse(
+        return new BoardResponse(
                 board.getId(),
                 board.getTitle(),
                 board.getContent(),
@@ -74,24 +73,13 @@ public class BoardService {
                 board.getCreatedDatetime(),
                 board.getUpdatedDatetime()
         );
-
-        return boardResponse;
     }
 
     // 삽입
     public int createBoard(BoardCreateRequest boardCreateRequest, Integer userId) {
-        if (boardCreateRequest.getTitle() == null || boardCreateRequest.getTitle().isBlank()) {
-            // 사용자가 값을 잘못 입력한 경우
-            throw new UserRequestException("잘못된 입력값 입니다.");
-        }
-        if (boardCreateRequest.getContent() == null || boardCreateRequest.getContent().isBlank()) {
-            // 사용자가 값을 잘못 입력한 경우
-            throw new UserRequestException("잘못된 입력값 입니다.");
-        }
-
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
-            throw new UnauthenticatedException("로그인한 사용자르 찾을 수 없습니다.");
+            throw new UnauthenticatedException("로그인한 사용자를 찾을 수 없습니다.");
         }
 
         User user = optionalUser.get();
@@ -115,16 +103,12 @@ public class BoardService {
 
         Board board = optionalBoard.get();
 
-        if (
-                (boardUpdateRequest.getTitle() == null || boardUpdateRequest.getTitle().isBlank()) ||
-                (boardUpdateRequest.getContent() == null || boardUpdateRequest.getContent().isBlank())
-        ) {
-            // 사용자가 값을 잘못 입력한 경우
-            throw new UserRequestException("잘못된 입력값 입니다.");
+        if (boardUpdateRequest.getTitle() != null && !boardUpdateRequest.getTitle().isBlank()) {
+            board.setTitle(boardUpdateRequest.getTitle());
         }
-
-        board.setTitle(boardUpdateRequest.getTitle());
-        board.setContent(boardUpdateRequest.getContent());
+        if (boardUpdateRequest.getContent() != null && !boardUpdateRequest.getContent().isBlank()) {
+            board.setContent(boardUpdateRequest.getContent());
+        }
 
         boardRepository.save(board);
     }

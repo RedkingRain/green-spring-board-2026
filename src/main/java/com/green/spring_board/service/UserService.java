@@ -8,7 +8,6 @@ import com.green.spring_board.entity.User;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
-import com.green.spring_board.exceptions.UserRequestException;
 import com.green.spring_board.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -101,15 +100,12 @@ public class UserService {
 
         User user = optionalUser.get();
 
-        if (
-                (userUpdateRequest.getEmail() == null || userUpdateRequest.getEmail().isBlank())
-             || (userUpdateRequest.getNickname() == null || userUpdateRequest.getNickname().isBlank())
-        ){
-            throw new UserRequestException("잘못된 입력값 입니다.");
+        if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().isBlank()) {
+            user.setEmail(userUpdateRequest.getEmail());
         }
-
-        user.setEmail(userUpdateRequest.getEmail());
-        user.setNickname(userUpdateRequest.getNickname());
+        if (userUpdateRequest.getNickname() != null && !userUpdateRequest.getNickname().isBlank()) {
+            user.setNickname(userUpdateRequest.getNickname());
+        }
 
         userRepository.save(user);
     }
