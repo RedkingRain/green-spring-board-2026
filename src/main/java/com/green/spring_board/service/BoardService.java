@@ -46,7 +46,7 @@ public class BoardService {
                             board.getContent(),
                             board.getHits(),
                             board.getLikeCount(),
-                            (userId == -1) ? false : likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
+                            userId != -1 && likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),
@@ -77,7 +77,7 @@ public class BoardService {
                 board.getContent(),
                 board.getHits(),
                 board.getLikeCount(),
-                (userId == -1) ? false : likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
+                userId != -1 && likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
                 board.getUser().getId(),
                 board.getUser().getNickname(),
                 board.getCreatedDatetime(),
@@ -211,6 +211,7 @@ public class BoardService {
         }
     }
 
+    // 게시글에 좋아요 누른 유저 정보 조회
     public LikeDetailResponse getLikeDetail(int id) {
         // 1. 이 게시글에 좋아요 누른 유저 정보들을 Like 테이블에서 싹 가져옴
         List<Like> likes = likeRepository.findByBoardId(id);

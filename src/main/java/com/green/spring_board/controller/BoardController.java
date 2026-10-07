@@ -161,6 +161,5 @@ public class BoardController {
         return ResponseEntity.ok(ApiResponse.ok(likeDetailResponse));
     }
 
-
     // 게시글 싫어요
 }
