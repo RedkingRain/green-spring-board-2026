@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +75,34 @@ public class BoardService {
                 board.getCreatedDatetime(),
                 board.getUpdatedDatetime()
         );
+    }
+
+    // 본인 게시글 조회
+    public List<BoardResponse> getMyBoards(int userId) {
+        List<Board> boardList = boardRepository.findByUserId(userId);
+
+        if (boardList.isEmpty()) {
+            throw new ResourceNotFoundException("작성된 게시물이 없습니다.");
+        }
+
+        List<BoardResponse> boardResponsesList = new ArrayList<>();
+
+        for (Board board : boardList) {
+            boardResponsesList.add(
+                    new BoardResponse(
+                            board.getId(),
+                            board.getTitle(),
+                            board.getContent(),
+                            board.getHits(),
+                            board.getUser().getId(),
+                            board.getUser().getNickname(),
+                            board.getCreatedDatetime(),
+                            board.getUpdatedDatetime()
+                    )
+            );
+        }
+
+        return boardResponsesList;
     }
 
     // 삽입

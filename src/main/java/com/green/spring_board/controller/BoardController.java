@@ -38,6 +38,17 @@ public class BoardController {
         return ResponseEntity.ok(ApiResponse.ok(board));
     }
 
+    // 본인 게시글 조회
+    @GetMapping("/my_boards")
+    public ResponseEntity<ApiResponse<List<BoardResponse>>> getMyBoard(HttpServletRequest httpServletRequest){
+        HttpSession session = httpServletRequest.getSession();
+
+        int userId = (int) session.getAttribute("userId");
+        List<BoardResponse> boardResponseList = boardService.getMyBoards(userId);
+
+        return ResponseEntity.ok(ApiResponse.ok(boardResponseList));
+    }
+
     // 삽입
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createBoard(
