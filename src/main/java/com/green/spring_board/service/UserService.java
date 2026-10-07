@@ -5,6 +5,7 @@ import com.green.spring_board.dto.MyInfoResponse;
 import com.green.spring_board.dto.SignupRequest;
 import com.green.spring_board.dto.UserUpdateRequest;
 import com.green.spring_board.entity.User;
+import com.green.spring_board.exceptions.AuthorizationFailureException;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
@@ -100,6 +101,11 @@ public class UserService {
 
         User user = optionalUser.get();
 
+        // 수정할 유저와 요청자 동일 여부 확인
+        if (user.getId() != userId) {
+            throw new AuthorizationFailureException("회원 수정 권한이 없습니다.");
+        }
+
         if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().isBlank()) {
             user.setEmail(userUpdateRequest.getEmail());
         }
@@ -112,10 +118,16 @@ public class UserService {
 
     // 회원 탈퇴
     public void deleteUser(int userId) {
-        boolean isExist = userRepository.existsById(userId);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new ResourceNotFoundException("User Info Not Found!");
+        }
 
-        if (!isExist) {
-            throw new ResourceNotFoundException("사용자를 찾을 수 없습니다.");
+        User user = optionalUser.get();
+
+        // 삭제할 유저와 요청자 동일 여부 확인
+        if (user.getId() != userId) {
+            throw new AuthorizationFailureException("회원 삭제 권한이 없습니다.");
         }
 
         userRepository.deleteById(userId);

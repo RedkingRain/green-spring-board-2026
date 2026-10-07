@@ -2,6 +2,7 @@ package com.green.spring_board.global;
 
 import com.green.spring_board.dto.ApiResponse;
 import com.green.spring_board.exceptions.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,6 +22,7 @@ import java.util.List;
  *  3. 개별 컨틀롤러의 try-catch 코드 중복을 제거하고, 클라이언트에게 일관된 에러 응답 형식을 보장할 수 있다.
  */
 @RestControllerAdvice
+@Slf4j  // 로깅 시스템을 활성화(로깅 추상화(Facade) 라이브러리)
 public class GlobalExceptionHandler {
 
 //    @ExceptionHandler(예외 클래스)
@@ -31,6 +34,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException e) {
 //        return ResponseEntity.notFound().build();
+        log.error(e.getMessage(), e);
+        log.info("안녕하세요");
+        log.warn("경고 경고");
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.fail(e.getMessage()));
     }
 
@@ -38,12 +45,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthenticatedException.class)
     public ResponseEntity<ApiResponse<Void>> handleUnauthenticated(UnauthenticatedException e) {
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        log.error(e.getMessage(), e);
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail(e.getMessage()));
     }
 
     // Validator 등 입력 검증 과정에서 문제 발생 시 공통 처리(400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<String>> handleValidationError(MethodArgumentNotValidException e) {
+        log.error(e.getMessage(), e);
+
         String resultMessage = "";
         List<FieldError> errors = e.getBindingResult().getFieldErrors();
         for (FieldError error : errors) {
@@ -63,6 +74,8 @@ public class GlobalExceptionHandler {
 //        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 //                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
 //                .body("중복되거나 저장할 수 없는 데이터입니다.");
+        log.error(e.getMessage(), e);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 //                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
                 .body(ApiResponse.fail("중복되거나 저장할 수 없는 데이터입니다."));
@@ -73,6 +86,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ApiResponse<String>> handleConflict(ResourceConflictException e) {
 //        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        log.error(e.getMessage(), e);
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(e.getMessage()));
     }
 
@@ -82,6 +97,8 @@ public class GlobalExceptionHandler {
 //        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
 //                .body("서버에서 오류가 발생했습니다.");
+        log.error(e.getMessage(), e);
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //                .contentType(MediaType.parseMediaType("text/plain;charset=UTF-8"))
                 .body(ApiResponse.fail("서버에서 오류가 발생했습니다."));
@@ -91,6 +108,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorizationFailureException.class)
     public ResponseEntity<ApiResponse<String>> handleForbidden(AuthorizationFailureException e) {
 //        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        log.error(e.getMessage(), e);
+
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.fail(e.getMessage()));
     }
 
@@ -98,6 +117,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidStateException.class)
     public ResponseEntity<ApiResponse<String>> handleBadRequest(InvalidStateException e) {
 //        return ResponseEntity.badRequest().build();
+        log.error(e.getMessage(), e);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.fail(e.getMessage()));
     }
 }
