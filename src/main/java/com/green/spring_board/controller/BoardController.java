@@ -21,15 +21,32 @@ public class BoardController {
 
     // 전체 조회
     @GetMapping // 여기에는 경로를 추가 하지 않는 이유는 REST API URL 네이밍 규칙 위반(URL + HTTP + Method 조합으로 결과를 예측가능 해야함)
-    public ResponseEntity<ApiResponse<List<BoardResponse>>> getBoards(){
+    public ResponseEntity<ApiResponse<List<BoardResponse>>> getBoards(HttpServletRequest httpServletRequest){
 //        return ResponseEntity.ok(boardService.getAllBoards());  // 200 & List<Boards> Return
-        return ResponseEntity.ok(ApiResponse.ok(boardService.getAllBoards()));
+        HttpSession session = httpServletRequest.getSession();
+
+        int userId = 0;
+        if (session == null || session.getAttribute("userId") == null) {
+            userId = -1;
+        }
+        else {
+            userId = (int) session.getAttribute("userId");
+        }
+
+        return ResponseEntity.ok(ApiResponse.ok(boardService.getAllBoards(userId)));
     }
 
     // 상세 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<BoardResponse>> getBoardDetail(@PathVariable int id){
-        BoardResponse board = boardService.getBoard(id);
+    public ResponseEntity<ApiResponse<BoardResponse>> getBoardDetail(@PathVariable int id, HttpServletRequest httpServletRequest){
+        HttpSession session = httpServletRequest.getSession();
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new UnauthenticatedException("로그인이 필요합니다.");
+        }
+
+        int userId = (int) session.getAttribute("userId");
+
+        BoardResponse board = boardService.getBoard(id, userId);
 //        return ResponseEntity.ok(board);  // 200 & Boards Return
         return ResponseEntity.ok(ApiResponse.ok(board));
     }
@@ -128,11 +145,6 @@ public class BoardController {
         boardService.pressLike(id, userId);
 
         return ResponseEntity.ok(ApiResponse.ok());
-
-        // 상세 눌렀을 때 어느 유저들이 이 게시글 좋아요를 눌렀는지
-
-        // 내가 이 게시글 좋아요 눌렀는지
-
     }
 
     // 상세 눌렀을 때 어느 유저들이 이 게시글 좋아요를 눌렀는지

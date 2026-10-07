@@ -28,7 +28,7 @@ public class BoardService {
     private LikeRepository likeRepository;
 
     // 전체 조회
-    public List<BoardResponse> getAllBoards() {
+    public List<BoardResponse> getAllBoards(int userId) {
         List<Board> boardList = boardRepository.findAll();
 
         // List<board> -> List<BoardResponse> 형태로 반환
@@ -37,6 +37,8 @@ public class BoardService {
 
         // 2. Board 개수만큼 반복하며 new BoardResponse 생성
         for (Board board : boardList) {
+            boolean isLikedByMe = likeRepository.existsByUserIdAndBoardId(userId, board.getId());
+
             // 3. 1번에서 만든 리스트에 추가
             boardResponsesList.add(
                     new BoardResponse(
@@ -45,6 +47,7 @@ public class BoardService {
                             board.getContent(),
                             board.getHits(),
                             board.getLikeCount(),
+                            isLikedByMe,
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),
@@ -58,7 +61,7 @@ public class BoardService {
     }
 
     // 상세 조회
-    public BoardResponse getBoard(int id) {
+    public BoardResponse getBoard(int id, int userId) {
         Optional<Board> optionalBoard = boardRepository.findById(id);
         if (optionalBoard.isEmpty()) {
             // 요청한 게시글을 찾지 못한 경우
@@ -69,12 +72,15 @@ public class BoardService {
         board.setHits(board.getHits() + 1);
         boardRepository.save(board);
 
+        boolean isLikedByMe = likeRepository.existsByUserIdAndBoardId(userId, board.getId());
+
         return new BoardResponse(
                 board.getId(),
                 board.getTitle(),
                 board.getContent(),
                 board.getHits(),
                 board.getLikeCount(),
+                isLikedByMe,
                 board.getUser().getId(),
                 board.getUser().getNickname(),
                 board.getCreatedDatetime(),
@@ -93,6 +99,8 @@ public class BoardService {
         List<BoardResponse> boardResponsesList = new ArrayList<>();
 
         for (Board board : boardList) {
+            boolean isLikedByMe = likeRepository.existsByUserIdAndBoardId(userId, board.getId());
+
             boardResponsesList.add(
                     new BoardResponse(
                             board.getId(),
@@ -100,6 +108,7 @@ public class BoardService {
                             board.getContent(),
                             board.getHits(),
                             board.getLikeCount(),
+                            isLikedByMe,
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),
