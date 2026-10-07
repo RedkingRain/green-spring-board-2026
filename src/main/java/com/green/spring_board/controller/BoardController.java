@@ -101,6 +101,7 @@ public class BoardController {
         if (session == null || session.getAttribute("userId") == null) {
             throw new UnauthenticatedException("로그인이 필요합니다.");
         }
+        int userId = (int) session.getAttribute("userId");
 
         // 둘 중 어느 방법을 쓸 지는 속한 팀, 조직 컨벤션 따르기
 
@@ -110,10 +111,38 @@ public class BoardController {
         // 삭제 성공 시 응답 방법 2.
         // 204(No Content) + No Body
 
-        int userId = (int) session.getAttribute("userId");
         boardService.deleteBoard(id, userId);
 //        return ResponseEntity.noContent().build();  // 204 Return
 //        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.ok());
         return ResponseEntity.ok(ApiResponse.ok());
     }
+
+    // 게시글 좋아요
+    @PostMapping("/like/{id}")
+    public ResponseEntity<ApiResponse<Void>> likeBoard(
+            @PathVariable int id,
+            HttpServletRequest httpServletRequest
+    ) {
+        HttpSession session = httpServletRequest.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new UnauthenticatedException("로그인이 필요합니다.");
+        }
+        int userId = (int) session.getAttribute("userId");
+
+        boardService.pressLike(id, userId);
+
+        return ResponseEntity.ok(ApiResponse.ok());
+
+        // 다시 눌렀을 때 취소
+
+        // 좋아요 수
+
+        // 상세 눌렀을 때 어느 유저들이 이 게시글 좋아요를 눌렀는지
+
+        // 내가 이 게시글 좋아요 눌렀는지
+
+    }
+
+
+    // 게시글 싫어요
 }
