@@ -44,6 +44,7 @@ public class BoardService {
                             board.getTitle(),
                             board.getContent(),
                             board.getHits(),
+                            board.getLikeCount(),
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),
@@ -73,6 +74,7 @@ public class BoardService {
                 board.getTitle(),
                 board.getContent(),
                 board.getHits(),
+                board.getLikeCount(),
                 board.getUser().getId(),
                 board.getUser().getNickname(),
                 board.getCreatedDatetime(),
@@ -97,6 +99,7 @@ public class BoardService {
                             board.getTitle(),
                             board.getContent(),
                             board.getHits(),
+                            board.getLikeCount(),
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),
@@ -191,10 +194,16 @@ public class BoardService {
             like.setBoard(board);
             like.setUser(user);
             likeRepository.save(like);
+
+            board.setLikeCount(board.getLikeCount() + 1);
+            boardRepository.save(board);
         }
         else {  // 3. 있으면 삭제
             Like like = optionalLike.get();
             likeRepository.deleteById(like.getId());
+
+            board.setLikeCount(board.getLikeCount() - 1);
+            boardRepository.save(board);
         }
     }
 }
