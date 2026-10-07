@@ -37,7 +37,6 @@ public class BoardService {
 
         // 2. Board 개수만큼 반복하며 new BoardResponse 생성
         for (Board board : boardList) {
-            boolean isLikedByMe = likeRepository.existsByUserIdAndBoardId(userId, board.getId());
 
             // 3. 1번에서 만든 리스트에 추가
             boardResponsesList.add(
@@ -47,7 +46,7 @@ public class BoardService {
                             board.getContent(),
                             board.getHits(),
                             board.getLikeCount(),
-                            isLikedByMe,
+                            (userId == -1) ? false : likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),
@@ -72,15 +71,13 @@ public class BoardService {
         board.setHits(board.getHits() + 1);
         boardRepository.save(board);
 
-        boolean isLikedByMe = likeRepository.existsByUserIdAndBoardId(userId, board.getId());
-
         return new BoardResponse(
                 board.getId(),
                 board.getTitle(),
                 board.getContent(),
                 board.getHits(),
                 board.getLikeCount(),
-                isLikedByMe,
+                (userId == -1) ? false : likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
                 board.getUser().getId(),
                 board.getUser().getNickname(),
                 board.getCreatedDatetime(),
@@ -99,8 +96,6 @@ public class BoardService {
         List<BoardResponse> boardResponsesList = new ArrayList<>();
 
         for (Board board : boardList) {
-            boolean isLikedByMe = likeRepository.existsByUserIdAndBoardId(userId, board.getId());
-
             boardResponsesList.add(
                     new BoardResponse(
                             board.getId(),
@@ -108,7 +103,7 @@ public class BoardService {
                             board.getContent(),
                             board.getHits(),
                             board.getLikeCount(),
-                            isLikedByMe,
+                            likeRepository.existsByUserIdAndBoardId(userId, board.getId()),
                             board.getUser().getId(),
                             board.getUser().getNickname(),
                             board.getCreatedDatetime(),

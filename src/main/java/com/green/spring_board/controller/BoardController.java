@@ -25,11 +25,8 @@ public class BoardController {
 //        return ResponseEntity.ok(boardService.getAllBoards());  // 200 & List<Boards> Return
         HttpSession session = httpServletRequest.getSession();
 
-        int userId = 0;
-        if (session == null || session.getAttribute("userId") == null) {
-            userId = -1;
-        }
-        else {
+        int userId = -1;
+        if (session != null && session.getAttribute("userId") != null) {
             userId = (int) session.getAttribute("userId");
         }
 
@@ -40,11 +37,11 @@ public class BoardController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BoardResponse>> getBoardDetail(@PathVariable int id, HttpServletRequest httpServletRequest){
         HttpSession session = httpServletRequest.getSession();
-        if (session == null || session.getAttribute("userId") == null) {
-            throw new UnauthenticatedException("로그인이 필요합니다.");
-        }
 
-        int userId = (int) session.getAttribute("userId");
+        int userId = -1;
+        if (session != null && session.getAttribute("userId") != null) {
+            userId = (int) session.getAttribute("userId");
+        }
 
         BoardResponse board = boardService.getBoard(id, userId);
 //        return ResponseEntity.ok(board);  // 200 & Boards Return
