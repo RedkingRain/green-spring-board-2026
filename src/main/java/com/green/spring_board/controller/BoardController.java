@@ -43,6 +43,10 @@ public class BoardController {
     public ResponseEntity<ApiResponse<List<BoardResponse>>> getMyBoard(HttpServletRequest httpServletRequest){
         HttpSession session = httpServletRequest.getSession();
 
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new UnauthenticatedException("로그인이 필요합니다.");
+        }
+
         int userId = (int) session.getAttribute("userId");
         List<BoardResponse> boardResponseList = boardService.getMyBoards(userId);
 
