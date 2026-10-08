@@ -44,7 +44,7 @@ public class BoardService {
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Board> boardList = boardRepository.findAll(pageable);
+        Page<Board> boardList = boardRepository.findByIsDeletedFalse(pageable);
 
         // List<board> -> List<BoardResponse> 형태로 반환
         // 1. List<BoardResponse> 형태의 빈 리스트 생성
@@ -83,6 +83,11 @@ public class BoardService {
         }
 
         Board board = optionalBoard.get();
+
+        if (board.isDeleted()) {
+            throw new ResourceNotFoundException("삭제된 게시글입니다.");
+        }
+
         board.setHits(board.getHits() + 1);
         boardRepository.save(board);
 
@@ -114,7 +119,7 @@ public class BoardService {
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Board> boardList = boardRepository.findByUserId(userId, pageable);
+        Page<Board> boardList = boardRepository.findByUserIdAndIsDeletedFalse(userId, pageable);
 
         if (boardList.isEmpty()) {
             throw new ResourceNotFoundException("작성된 게시물이 없습니다.");
@@ -170,6 +175,9 @@ public class BoardService {
 
         Board board = optionalBoard.get();
 
+        if (board.isDeleted()) {
+            throw new ResourceNotFoundException("삭제된 게시글입니다.");
+        }
         // 작성자와 요청자 동일 여부 확인
         if (board.getUser().getId() != userId) {
             throw new AuthorizationFailureException("게시글 작업 권한이 없습니다.");
@@ -195,12 +203,17 @@ public class BoardService {
 
         Board board = optionalBoard.get();
 
+        if (board.isDeleted()) {
+            throw new ResourceNotFoundException("삭제된 게시글입니다.");
+        }
         // 작성자와 요청자 동일 여부 확인
         if (board.getUser().getId() != userId) {
             throw new AuthorizationFailureException("게시글 작업 권한이 없습니다.");
         }
 
-        boardRepository.deleteById(id);
+//        boardRepository.deleteById(id);
+        board.setDeleted(true);
+        boardRepository.save(board);
     }
 
     // 게시글 좋아요

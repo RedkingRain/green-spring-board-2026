@@ -11,6 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Integer>{
-    Page<Board> findByUserId(int userId, Pageable pageable);
-    Page<Board> findAll(Pageable pageable);
+    Page<Board> findByIsDeletedFalse(Pageable pageable);
+    Page<Board> findByUserIdAndIsDeletedFalse(int userId, Pageable pageable);
 }

@@ -9,6 +9,7 @@ import com.green.spring_board.exceptions.AuthorizationFailureException;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
+import com.green.spring_board.global.UserState;
 import com.green.spring_board.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,6 +45,7 @@ public class UserService {
         user.setEmail(signupRequest.getEmail());
         user.setPassword(hashedPassword);
         user.setNickname(signupRequest.getNickname());
+        user.setState(UserState.ACTIVE);
         userRepository.save(user);
     }
 
@@ -63,6 +65,9 @@ public class UserService {
 
         User user = optionalUser.get();
 
+        if (user.getState() == UserState.QUITTED) {
+            throw new ResourceNotFoundException("탈퇴된 회원입니다.");
+        }
         // 3. 비밀번호가 올바른지 확인
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new UnauthenticatedException("Wrong password");
@@ -83,6 +88,9 @@ public class UserService {
 
         User user = optionalUser.get();
 
+        if (user.getState() == UserState.QUITTED) {
+            throw new ResourceNotFoundException("탈퇴된 회원입니다.");
+        }
         // 2. DB에서 이 유저의 닉네임과 이메일을 받아옴.
         // 3. MyInfoResponse 객체를 생성하여 돌려줌
         return new MyInfoResponse(user.getEmail(), user.getNickname());
@@ -96,6 +104,9 @@ public class UserService {
         }
         User user = optionalUser.get();
 
+        if (user.getState() == UserState.QUITTED) {
+            throw new ResourceNotFoundException("탈퇴된 회원입니다.");
+        }
         if (userRepository.existsByEmail(userUpdateRequest.getEmail())) {
             throw new ResourceConflictException("Email already exists");
         }
@@ -115,7 +126,14 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("User Info Not Found!");
         }
+        User user = optionalUser.get();
 
-        userRepository.deleteById(userId);
+        if (user.getState() == UserState.QUITTED) {
+            throw new ResourceNotFoundException("탈퇴된 회원입니다.");
+        }
+
+//        userRepository.deleteById(userId);
+        user.setState(UserState.QUITTED);
+        userRepository.save(user);
     }
 }

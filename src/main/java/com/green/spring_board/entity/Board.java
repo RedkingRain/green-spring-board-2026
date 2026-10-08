@@ -45,4 +45,7 @@ public class Board {
 
     @Column(nullable = false)
     private int likeCount;
+
+    @Column(nullable = false)
+    private boolean isDeleted;
 }
