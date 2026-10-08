@@ -34,11 +34,11 @@ public class BoardService {
     public Page<BoardResponse> getAllBoards(int userId, int  page, int size, String order) {
         Sort sort;
         if (order.equals("latest")) {
-            sort = Sort.by(Sort.Direction.DESC, "createdDatetime");
+            sort = Sort.by(Sort.Direction.DESC, "createdDatetime", "hits");
         } else if (order.equals("likes")) {
-            sort = Sort.by(Sort.Direction.DESC, "likeCount");
+            sort = Sort.by(Sort.Direction.DESC, "likeCount", "hits");
         } else if (order.equals("views")) {
-            sort = Sort.by(Sort.Direction.DESC, "hits");
+            sort = Sort.by(Sort.Direction.DESC, "hits", "createdDatetime");
         } else {
             throw new InvalidStateException("잘못된 정렬 옵션입니다.");
         }
@@ -104,11 +104,11 @@ public class BoardService {
     public Page<BoardResponse> getMyBoards(int userId, int page, int size, String order) {
         Sort sort;
         if (order.equals("latest")) {
-            sort = Sort.by(Sort.Direction.DESC, "createdDatetime");
+            sort = Sort.by(Sort.Direction.DESC, "createdDatetime", "hits");
         } else if (order.equals("likes")) {
-            sort = Sort.by(Sort.Direction.DESC, "likeCount");
+            sort = Sort.by(Sort.Direction.DESC, "likeCount", "hits");
         } else if (order.equals("views")) {
-            sort = Sort.by(Sort.Direction.DESC, "hits");
+            sort = Sort.by(Sort.Direction.DESC, "hits", "createdDatetime");
         } else {
             throw new InvalidStateException("잘못된 정렬 옵션입니다.");
         }
