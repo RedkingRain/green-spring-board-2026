@@ -2,6 +2,7 @@ package com.green.spring_board.controller;
 
 import com.green.spring_board.dto.ApiResponse;
 import com.green.spring_board.dto.CommentCreateRequest;
+import com.green.spring_board.dto.CommentResponse;
 import com.green.spring_board.exceptions.UnauthenticatedException;
 import com.green.spring_board.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -33,6 +36,14 @@ public class CommentController {
         commentService.createComment(id, userId, commentCreateRequest);
 
         return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    // 댓글 조회
+    @GetMapping("/board/{id}/comment")
+    public ResponseEntity<ApiResponse<List<CommentResponse>>> readComment(
+            @PathVariable int id
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok(commentService.readComments(id)));
     }
 
     // 댓글 수정
