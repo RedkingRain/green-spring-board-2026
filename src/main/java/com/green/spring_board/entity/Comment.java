@@ -22,7 +22,7 @@ public class Comment {
 
     @Column(nullable = false)
     @Size(min = 1, max = 300)
-    private String comment;
+    private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

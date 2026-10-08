@@ -16,5 +16,5 @@ import java.util.List;
 public class CommentCreateRequest {
     @NotBlank
     @Size(min = 1, max = 300)
-    private String comment;
+    private String content;
 }

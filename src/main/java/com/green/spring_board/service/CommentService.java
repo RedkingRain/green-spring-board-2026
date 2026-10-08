@@ -43,7 +43,7 @@ public class CommentService {
 
         // 데이터 생성
         Comment comment = new Comment();
-        comment.setComment(commentCreateRequest.getComment());
+        comment.setContent(commentCreateRequest.getContent());
         comment.setUser(user);
         comment.setBoard(board);
 
