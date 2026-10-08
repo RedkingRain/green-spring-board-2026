@@ -94,18 +94,11 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("User Info Not Found!");
         }
+        User user = optionalUser.get();
 
         if (userRepository.existsByEmail(userUpdateRequest.getEmail())) {
             throw new ResourceConflictException("Email already exists");
         }
-
-        User user = optionalUser.get();
-
-        // 수정할 유저와 요청자 동일 여부 확인
-        if (user.getId() != userId) {
-            throw new AuthorizationFailureException("회원 수정 권한이 없습니다.");
-        }
-
         if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().isBlank()) {
             user.setEmail(userUpdateRequest.getEmail());
         }
@@ -121,13 +114,6 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("User Info Not Found!");
-        }
-
-        User user = optionalUser.get();
-
-        // 삭제할 유저와 요청자 동일 여부 확인
-        if (user.getId() != userId) {
-            throw new AuthorizationFailureException("회원 삭제 권한이 없습니다.");
         }
 
         userRepository.deleteById(userId);

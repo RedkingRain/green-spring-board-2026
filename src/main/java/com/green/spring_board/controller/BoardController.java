@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,11 @@ public class BoardController {
 
     // 전체 조회
     @GetMapping // 여기에는 경로를 추가 하지 않는 이유는 REST API URL 네이밍 규칙 위반(URL + HTTP + Method 조합으로 결과를 예측가능 해야함)
-    public ResponseEntity<ApiResponse<List<BoardResponse>>> getBoards(HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<Page<BoardResponse>>> getBoards(
+            HttpServletRequest httpServletRequest,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
 //        return ResponseEntity.ok(boardService.getAllBoards());  // 200 & List<Boards> Return
         HttpSession session = httpServletRequest.getSession();
 
@@ -30,7 +35,7 @@ public class BoardController {
             userId = (int) session.getAttribute("userId");
         }
 
-        return ResponseEntity.ok(ApiResponse.ok(boardService.getAllBoards(userId)));
+        return ResponseEntity.ok(ApiResponse.ok(boardService.getAllBoards(userId, page, size)));
     }
 
     // 상세 조회
@@ -50,7 +55,11 @@ public class BoardController {
 
     // 본인 게시글 조회
     @GetMapping("/my_boards")
-    public ResponseEntity<ApiResponse<List<BoardResponse>>> getMyBoard(HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<Page<BoardResponse>>> getMyBoard(
+            HttpServletRequest httpServletRequest,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
         HttpSession session = httpServletRequest.getSession();
 
         if (session == null || session.getAttribute("userId") == null) {
@@ -58,7 +67,7 @@ public class BoardController {
         }
 
         int userId = (int) session.getAttribute("userId");
-        List<BoardResponse> boardResponseList = boardService.getMyBoards(userId);
+        Page<BoardResponse> boardResponseList = boardService.getMyBoards(userId, page, size);
 
         return ResponseEntity.ok(ApiResponse.ok(boardResponseList));
     }

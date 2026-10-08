@@ -14,8 +14,13 @@ import com.green.spring_board.entity.Board;
 import com.green.spring_board.repository.LikeRepository;
 import com.green.spring_board.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +33,9 @@ public class BoardService {
     private LikeRepository likeRepository;
 
     // 전체 조회
-    public List<BoardResponse> getAllBoards(int userId) {
-        List<Board> boardList = boardRepository.findAll();
+    public Page<BoardResponse> getAllBoards(int userId, int  page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Board> boardList = boardRepository.findAll(pageable);
 
         // List<board> -> List<BoardResponse> 형태로 반환
         // 1. List<BoardResponse> 형태의 빈 리스트 생성
@@ -56,7 +62,7 @@ public class BoardService {
         }
 
         // 4. 반환
-        return boardResponsesList;
+        return new PageImpl<>(boardResponsesList, pageable, boardList.getTotalElements());
     }
 
     // 상세 조회
@@ -86,8 +92,9 @@ public class BoardService {
     }
 
     // 본인 게시글 조회
-    public List<BoardResponse> getMyBoards(int userId) {
-        List<Board> boardList = boardRepository.findByUserId(userId);
+    public Page<BoardResponse> getMyBoards(int userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Board> boardList = boardRepository.findByUserId(userId, pageable);
 
         if (boardList.isEmpty()) {
             throw new ResourceNotFoundException("작성된 게시물이 없습니다.");
@@ -112,7 +119,7 @@ public class BoardService {
             );
         }
 
-        return boardResponsesList;
+        return new PageImpl<>(boardResponsesList, pageable, boardList.getTotalElements());
     }
 
     // 삽입
