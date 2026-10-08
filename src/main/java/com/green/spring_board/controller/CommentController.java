@@ -3,12 +3,15 @@ package com.green.spring_board.controller;
 import com.green.spring_board.dto.ApiResponse;
 import com.green.spring_board.dto.CommentCreateRequest;
 import com.green.spring_board.dto.CommentResponse;
+import com.green.spring_board.dto.CommentUpdateRequest;
 import com.green.spring_board.exceptions.UnauthenticatedException;
 import com.green.spring_board.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +50,35 @@ public class CommentController {
     }
 
     // 댓글 수정
+    @PatchMapping("/comment/{id}")
+    public ResponseEntity<ApiResponse<Void>> updateComment(
+            HttpServletRequest httpServletRequest,
+            @PathVariable int id,
+            @Valid @RequestBody CommentUpdateRequest commentUpdateRequest
+    ) {
+        HttpSession session = httpServletRequest.getSession();
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new UnauthenticatedException("로그인이 필요합니다.");
+        }
+        int userId = (int) session.getAttribute("userId");
 
+        commentService.updateComment(id, commentUpdateRequest, userId);
+        return ResponseEntity.ok(ApiResponse.ok());
+    }
 
     // 댓글 삭제
+    @DeleteMapping("/comment/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteComment(
+            HttpServletRequest httpServletRequest,
+            @PathVariable int id
+    ) {
+        HttpSession session = httpServletRequest.getSession();
+        if (session == null || session.getAttribute("userId") == null) {
+            throw new UnauthenticatedException("로그인이 필요합니다.");
+        }
+        int userId = (int) session.getAttribute("userId");
 
+        commentService.deleteComment(id, userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.ok());
+    }
 }

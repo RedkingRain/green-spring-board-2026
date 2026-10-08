@@ -2,6 +2,7 @@ package com.green.spring_board.service;
 
 import com.green.spring_board.dto.CommentCreateRequest;
 import com.green.spring_board.dto.CommentResponse;
+import com.green.spring_board.dto.CommentUpdateRequest;
 import com.green.spring_board.entity.Board;
 import com.green.spring_board.entity.Comment;
 import com.green.spring_board.entity.User;
@@ -9,6 +10,7 @@ import com.green.spring_board.exceptions.*;
 import com.green.spring_board.repository.BoardRepository;
 import com.green.spring_board.repository.CommentRepository;
 import com.green.spring_board.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -79,8 +81,47 @@ public class CommentService {
     }
 
     // 댓글 수정
+    public void updateComment(int commentId, CommentUpdateRequest commentUpdateRequest, int userId) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        if (optionalComment.isEmpty()) {
+            throw new ResourceNotFoundException("요청한 댓글을 찾지 못했습니다.");
+        }
+        Comment comment = optionalComment.get();
 
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new UnauthenticatedException("로그인한 사용자를 찾을 수 없습니다.");
+        }
+        User user = optionalUser.get();
+
+        if (comment.getUser().getId() != user.getId()) {
+            throw new AuthorizationFailureException("수정할 권한이 없습니다.");
+        }
+
+        if (commentUpdateRequest.getContent() != null) {
+            comment.setContent(commentUpdateRequest.getContent());
+            commentRepository.save(comment);
+        }
+    }
 
     // 댓글 삭제
+    public void deleteComment(int commentId, int userId) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        if (optionalComment.isEmpty()) {
+            throw new ResourceNotFoundException("요청한 댓글을 찾지 못했습니다.");
+        }
+        Comment comment = optionalComment.get();
 
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new UnauthenticatedException("로그인한 사용자를 찾을 수 없습니다.");
+        }
+        User user = optionalUser.get();
+
+        if (comment.getUser().getId() != user.getId()) {
+            throw new AuthorizationFailureException("삭제할 권한이 없습니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
 }
