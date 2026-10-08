@@ -25,7 +25,8 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Page<BoardResponse>>> getBoards(
             HttpServletRequest httpServletRequest,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "latest") String order
     ){
 //        return ResponseEntity.ok(boardService.getAllBoards());  // 200 & List<Boards> Return
         HttpSession session = httpServletRequest.getSession();
@@ -35,7 +36,7 @@ public class BoardController {
             userId = (int) session.getAttribute("userId");
         }
 
-        return ResponseEntity.ok(ApiResponse.ok(boardService.getAllBoards(userId, page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(boardService.getAllBoards(userId, page, size, order)));
     }
 
     // 상세 조회
@@ -58,7 +59,8 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Page<BoardResponse>>> getMyBoard(
             HttpServletRequest httpServletRequest,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "latest") String order
     ){
         HttpSession session = httpServletRequest.getSession();
 
@@ -67,7 +69,7 @@ public class BoardController {
         }
 
         int userId = (int) session.getAttribute("userId");
-        Page<BoardResponse> boardResponseList = boardService.getMyBoards(userId, page, size);
+        Page<BoardResponse> boardResponseList = boardService.getMyBoards(userId, page, size, order);
 
         return ResponseEntity.ok(ApiResponse.ok(boardResponseList));
     }
