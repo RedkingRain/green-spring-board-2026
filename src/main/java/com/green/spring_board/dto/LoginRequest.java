@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
     @NotBlank       // Null or 빈 문자열 방지 규칙 추가(공백으로 이루어진 데이터도 빈 값으로 간주)
-    private String email;
+    private String username;
     @NotBlank
     private String password;
 }

@@ -1,18 +1,17 @@
 package com.green.spring_board.service;
 
-import com.green.spring_board.dto.LoginRequest;
-import com.green.spring_board.dto.MyInfoResponse;
-import com.green.spring_board.dto.SignupRequest;
-import com.green.spring_board.dto.UserUpdateRequest;
+import com.green.spring_board.dto.*;
 import com.green.spring_board.entity.User;
-import com.green.spring_board.exceptions.AuthorizationFailureException;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
 import com.green.spring_board.global.UserState;
 import com.green.spring_board.repository.UserRepository;
+import com.green.spring_board.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
 
     // 회원가입
     public void signup(SignupRequest signupRequest) {
@@ -32,8 +33,13 @@ public class UserService {
 //            throw new UserRequestException("Email or Password cannot be blank");
 //        }
 
+        // username이 사용 중인지 확인
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            throw new ResourceConflictException("Username already exists");
+        }
+
         // 이메일이 사용 중인지 확인
-        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+        if (userRepository.existsByUsername(signupRequest.getEmail())) {
             throw new ResourceConflictException("Email already exists");
         }
 
@@ -42,6 +48,7 @@ public class UserService {
 
         // db save
         User user = new User();
+        user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
         user.setPassword(hashedPassword);
         user.setNickname(signupRequest.getNickname());
@@ -50,7 +57,15 @@ public class UserService {
     }
 
     // 로그인
-    public int login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+        } catch (AuthenticationException e) {
+            throw new UnauthenticatedException("아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
+
         // 1.이메일과 비밀번호가 공백이 아닌지 확인
         // @Valid & @NotBlank 로 해당 체크 대체
 //        if (loginRequest.getEmail().isBlank() || loginRequest.getPassword().isBlank()) {
@@ -58,23 +73,20 @@ public class UserService {
 //        }
 
         // 2. 이메일 존재하는건지 확인
-        Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
-        if (optionalUser.isEmpty()) {
+        User user = userRepository.findByUsername(loginRequest.getUsername());
+        if (user == null) {
             throw new ResourceNotFoundException("User Not Found");
         }
-
-        User user = optionalUser.get();
 
         if (user.getState() == UserState.QUITTED) {
             throw new ResourceNotFoundException("탈퇴된 회원입니다.");
         }
-        // 3. 비밀번호가 올바른지 확인
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new UnauthenticatedException("Wrong password");
-        }
+
+        // 엑세스 토큰 발급
+        String accesstoken = tokenProvider.generateAccessToken(user.getUsername());
 
         // 4. 로그인 성공
-        return user.getId();
+        return new LoginResponse(accesstoken);
     }
 
     // 접속자 정보 조회

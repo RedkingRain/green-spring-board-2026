@@ -20,7 +20,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
     private int id;
 
-    @Column(nullable = false, unique = true)   // NOT NULL, Unique키
+    @Column(name = "username", nullable = false, unique = true)   // NOT NULL, Unique키
     private String username;
 
     @Column(nullable = false)   // NOT NULL

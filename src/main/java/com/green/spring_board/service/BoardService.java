@@ -16,6 +16,7 @@ import com.green.spring_board.repository.LikeRepository;
 import com.green.spring_board.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.LineNumberReader;
@@ -31,7 +32,10 @@ public class BoardService {
     private LikeRepository likeRepository;
 
     // 전체 조회
-    public Page<BoardResponse> getAllBoards(int userId, int  page, int size, String order) {
+    public Page<BoardResponse> getAllBoards(int  page, int size, String order) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Sort sort;
         if (order.equals("latest")) {
             sort = Sort.by(Sort.Direction.DESC, "createdDatetime", "hits");
@@ -75,7 +79,10 @@ public class BoardService {
     }
 
     // 상세 조회
-    public BoardResponse getBoard(int id, int userId) {
+    public BoardResponse getBoard(int id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Optional<Board> optionalBoard = boardRepository.findById(id);
         if (optionalBoard.isEmpty()) {
             // 요청한 게시글을 찾지 못한 경우
@@ -106,7 +113,10 @@ public class BoardService {
     }
 
     // 본인 게시글 조회
-    public Page<BoardResponse> getMyBoards(int userId, int page, int size, String order) {
+    public Page<BoardResponse> getMyBoards(int page, int size, String order) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Sort sort;
         if (order.equals("latest")) {
             sort = Sort.by(Sort.Direction.DESC, "createdDatetime", "hits");
@@ -148,7 +158,10 @@ public class BoardService {
     }
 
     // 삽입
-    public int createBoard(BoardCreateRequest boardCreateRequest, Integer userId) {
+    public int createBoard(BoardCreateRequest boardCreateRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             throw new UnauthenticatedException("로그인한 사용자를 찾을 수 없습니다.");
@@ -166,7 +179,10 @@ public class BoardService {
     }
 
     // 수정
-    public void updateBoard(int id, BoardUpdateRequest boardUpdateRequest, int userId) {
+    public void updateBoard(int id, BoardUpdateRequest boardUpdateRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Optional<Board> optionalBoard = boardRepository.findById(id);
         if (optionalBoard.isEmpty()) {
             // 게시글을 못 찾은 경우
@@ -194,7 +210,10 @@ public class BoardService {
     }
 
     // 삭제
-    public void deleteBoard(int id, int userId) {
+    public void deleteBoard(int id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Optional<Board> optionalBoard = boardRepository.findById(id);
         if (optionalBoard.isEmpty()) {
             // 게시글을 못 찾은 경우
@@ -217,7 +236,10 @@ public class BoardService {
     }
 
     // 게시글 좋아요
-    public void pressLike(int id, int userId) {
+    public void pressLike(int id) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
+
         Optional<Board> optionalBoard = boardRepository.findById(id);
         if (optionalBoard.isEmpty()) {
             // 게시글을 못 찾은 경우

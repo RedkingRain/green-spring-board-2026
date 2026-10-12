@@ -14,6 +14,10 @@ import lombok.Setter;
 @Setter
 public class SignupRequest {
     @NotBlank
+    @Size(max = 30)
+    private String username;
+
+    @NotBlank
     @Email  // 값의 형식이 email 형식인지 검증
     @Size(max = 100)
     private String email;

@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,22 +28,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>> login(
-            @Valid @RequestBody LoginRequest loginRequest,      // @Valid로 LoginRequest DTO에 적용한 @NotBlank 어노테이션 규칙을 반영하여 검사 실행, 해당 어노테이션이 없으면 규칙만 만들어 놓은 상태라고 봐야함.
-            HttpServletRequest httpServletRequest
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest loginRequest      // @Valid로 LoginRequest DTO에 적용한 @NotBlank 어노테이션 규칙을 반영하여 검사 실행, 해당 어노테이션이 없으면 규칙만 만들어 놓은 상태라고 봐야함.
     ) {
-        int userId = userService.login(loginRequest);
+        LoginResponse result = userService.login(loginRequest);
 
-        // 세션 생성 작업
-        // 사용자의 요청값에서 세션 존재하는지 확인 후 세션이 존재하면 세션 들고옴
-        // 세션이 없다면 새로운 세션 생성
-        HttpSession session = httpServletRequest.getSession();
-        // 사용자가 잘못된 세션ID를 올려줄 수 있으니 세션ID 초기화 진행(로그인은 세션이 없을 경우가 대부분이기 때문에)
-        httpServletRequest.changeSessionId();
-        session.setAttribute("userId", userId); // 세션 값에 userId 항목 추가(세션이 어떤 계정에 대한 세션인지 알기 위해)
-
-//        return ResponseEntity.ok().build();
-        return ResponseEntity.ok(ApiResponse.ok());
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     @GetMapping("/me")
