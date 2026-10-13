@@ -1,6 +1,7 @@
 package com.green.spring_board.controller;
 
 import com.green.spring_board.dto.*;
+import com.green.spring_board.entity.RefreshToken;
 import com.green.spring_board.exceptions.UnauthenticatedException;
 import com.green.spring_board.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,16 +65,21 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        if (session == null || session.getAttribute("userId") == null) {
-            throw new UnauthenticatedException("로그인이 필요합니다.");
-        }
-
-        session.invalidate(); // 세션 만료 처리
-//        return ResponseEntity.ok().build();
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader("Authorization") String authorization
+    ) {
+        String accessToken = authorization.substring(7);
+        userService.logout(accessToken);
         return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<RefreshResponse>> refresh(
+            @Valid @RequestBody RefreshRequest refreshRequest
+    ) {
+        // 리프레시 토큰을 이용해 새로운 엑세스 토큰을 재발급 받는 API
+        RefreshResponse response = userService.refresh(refreshRequest);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     @PatchMapping("/update")
