@@ -27,5 +27,5 @@ public class RefreshToken {
     private String token;
 
     @Column(name = "expiration_datetime", nullable = false, insertable = true, updatable = true)
-    private LocalDateTime expirationDataTime;
+    private LocalDateTime expirationDatetime;
 }

@@ -111,7 +111,7 @@ public class UserService {
         RefreshToken refreshTokenObj = new RefreshToken();
         refreshTokenObj.setUser(user);
         refreshTokenObj.setToken(refreshToken);
-        refreshTokenObj.setExpirationDataTime(expirationDatetime);
+        refreshTokenObj.setExpirationDatetime(expirationDatetime);
         refreshTokenRepository.save(refreshTokenObj);
 
         // 4. 로그인 성공
@@ -135,7 +135,7 @@ public class UserService {
 
         AccessTokenBlackList accessTokenBlackList = new AccessTokenBlackList();
         accessTokenBlackList.setToken(accessToken);
-        accessTokenBlackList.setExpirationDataTime(convertedDateTime);
+        accessTokenBlackList.setExpirationDatetime(convertedDateTime);
         accessTokenBlackListRepository.save(accessTokenBlackList);
     }
 
@@ -158,7 +158,7 @@ public class UserService {
         // ! + isAfter = 만료 시간이 현재보다 이전이거나 같은 경우 (=현재보다 미래가 아닌 경우)
         // isBefore = 만료 시간이 현재보다 이전인 경우
         // 만료 시각과 현재 시각이 정확히 같을 때도 만료된 것으로 처리
-        if (!optionalRefreshToken.get().getExpirationDataTime().isAfter(LocalDateTime.now())) {
+        if (!optionalRefreshToken.get().getExpirationDatetime().isAfter(LocalDateTime.now())) {
             throw new UnauthenticatedException("만료된 리프레시 토큰입니다.");
         }
 
