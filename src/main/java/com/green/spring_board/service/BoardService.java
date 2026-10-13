@@ -300,4 +300,32 @@ public class BoardService {
         // 3. 반환
         return likeDetailResponse;
     }
+
+    // 게시물 타이틀 키워드 검색
+    @Transactional(readOnly = true)
+    public List<BoardResponse> search(String keyword) {
+        List<Board> boards = boardRepository.searchByTitle(keyword);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username);
+        List<Integer> likeBoardIds = likeRepository.findLikedBoardIdsByUserId(user.getId());
+
+        List<BoardResponse> responses = new ArrayList<>();
+        for (Board board : boards) {
+            BoardResponse boardResponse = new BoardResponse(
+                    board.getId(),
+                    board.getTitle(),
+                    board.getContent(),
+                    board.getHits(),
+                    board.getLikeCount(),
+                    likeBoardIds.contains(board.getId()),
+                    board.getUser().getId(),
+                    board.getUser().getNickname(),
+                    board.getCreatedDatetime(),
+                    board.getUpdatedDatetime()
+            );
+            responses.add(boardResponse);
+        }
+
+        return responses;
+    }
 }

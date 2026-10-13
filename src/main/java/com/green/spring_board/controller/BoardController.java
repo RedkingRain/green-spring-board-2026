@@ -118,4 +118,12 @@ public class BoardController {
 
         return ResponseEntity.ok(ApiResponse.ok(likeDetailResponse));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<BoardResponse>>> searchPosts(
+            @RequestParam String keyword
+    ) {
+        List<BoardResponse> responses = boardService.search(keyword);
+        return ResponseEntity.ok(ApiResponse.ok(responses));
+    }
 }
