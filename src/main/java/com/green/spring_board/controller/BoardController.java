@@ -2,13 +2,16 @@ package com.green.spring_board.controller;
 
 import com.green.spring_board.dto.*;
 import com.green.spring_board.exceptions.UnauthenticatedException;
+import com.green.spring_board.security.JwtTokenProvider;
 import com.green.spring_board.service.BoardService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -19,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+    private final JwtTokenProvider tokenProvider;
 
     // 전체 조회
     @GetMapping // 여기에는 경로를 추가 하지 않는 이유는 REST API URL 네이밍 규칙 위반(URL + HTTP + Method 조합으로 결과를 예측가능 해야함)

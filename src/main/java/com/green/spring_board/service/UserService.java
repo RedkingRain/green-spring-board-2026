@@ -1,11 +1,13 @@
 package com.green.spring_board.service;
 
 import com.green.spring_board.dto.*;
+import com.green.spring_board.entity.RefreshToken;
 import com.green.spring_board.entity.User;
 import com.green.spring_board.exceptions.ResourceConflictException;
 import com.green.spring_board.exceptions.ResourceNotFoundException;
 import com.green.spring_board.exceptions.UnauthenticatedException;
 import com.green.spring_board.global.UserState;
+import com.green.spring_board.repository.RefreshTokenRepository;
 import com.green.spring_board.repository.UserRepository;
 import com.green.spring_board.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
@@ -15,12 +17,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
@@ -83,10 +90,27 @@ public class UserService {
         }
 
         // 엑세스 토큰 발급
-        String accesstoken = tokenProvider.generateAccessToken(user.getUsername());
+        String accessToken = tokenProvider.generateAccessToken(user.getUsername(), user.getId());
+        String refreshToken = tokenProvider.generateRefreshToken(user.getUsername());
+
+        // 3-1. 해당 유저의 기존 리프레시 토큰(들) 삭제
+        List<RefreshToken> tokens = refreshTokenRepository.findByUserId(user.getId());
+        refreshTokenRepository.deleteAll(tokens);
+
+        // 3-2. 해당 유저의 신규 리프레시 토큰 저장
+        Date expiration = tokenProvider.getExpirationToken(refreshToken);
+        LocalDateTime expirationDatetime = expiration.toInstant().atZone(
+                ZoneId.systemDefault()
+        ).toLocalDateTime();
+
+        RefreshToken refreshTokenObj = new RefreshToken();
+        refreshTokenObj.setUser(user);
+        refreshTokenObj.setToken(accessToken);
+        refreshTokenObj.setExpirationDataTime(expirationDatetime);
+        refreshTokenRepository.save(refreshTokenObj);
 
         // 4. 로그인 성공
-        return new LoginResponse(accesstoken);
+        return new LoginResponse(accessToken, refreshToken);
     }
 
     // 접속자 정보 조회

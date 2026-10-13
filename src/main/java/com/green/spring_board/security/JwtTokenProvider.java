@@ -27,7 +27,7 @@ public class JwtTokenProvider {
     }
 
     // 엑세스 토큰 생성
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String username, int userId) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + ACCESS_TOKEN_VALIDITY);
 
@@ -35,6 +35,7 @@ public class JwtTokenProvider {
                 .setSubject(username)
                 .setId(UUID.randomUUID().toString())
                 .claim("tokenType","ACCESS")
+                .claim("userId",userId)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -106,5 +107,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration();
+    }
+
+    // JWT 토큰에서 userId 추출
+    public int getUserIdFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", Integer.class);
     }
 }

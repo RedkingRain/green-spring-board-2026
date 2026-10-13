@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 public class LoginResponse {
-    private String accessToken;
+    private String accessToken; // 엑세스 토큰
+    private String refreshToken;
 }
