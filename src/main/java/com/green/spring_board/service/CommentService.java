@@ -13,6 +13,7 @@ import com.green.spring_board.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class CommentService {
     private UserRepository userRepository;
 
     // 댓글 등록
+    @Transactional
     public void createComment(
             int id,
             int userId,
@@ -56,6 +58,7 @@ public class CommentService {
     }
 
     // 댓글 조회
+    @Transactional(readOnly = true)
     public List<CommentResponse> readComments(int boardId) {
         // 게시물 조회
         if (!boardRepository.existsById(boardId)) {
@@ -81,6 +84,7 @@ public class CommentService {
     }
 
     // 댓글 수정
+    @Transactional
     public void updateComment(int commentId, CommentUpdateRequest commentUpdateRequest, int userId) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {
@@ -108,6 +112,7 @@ public class CommentService {
     }
 
     // 댓글 삭제
+    @Transactional
     public void deleteComment(int commentId, int userId) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {

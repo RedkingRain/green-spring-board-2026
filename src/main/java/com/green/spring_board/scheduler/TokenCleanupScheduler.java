@@ -17,9 +17,17 @@ public class TokenCleanupScheduler {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccessTokenBlackListRepository accessTokenBlackListRepository;
 
-    @Transactional
     // 매일 오전 3시 자동 실행(초 분 시 일 월 요일)
-    @Scheduled(cron = "0 0 3 * * *")
+    // 매 단위에 실행할 것이다 -> *
+    // 특정 값에 실행할 것이다 -> 1,2,3 등 상수
+    // 특정 값 기준 일정 주기로 실행할 것이다 -> 기준값/주기 (ex 0/10)
+
+    // 10 * * * * * -> 항상 매분의 10초마다 실행(1분에 한 번)
+    // 0/10 * * * * * -> 항상 10초마다 실행(10초에 한 번)
+
+    // 메일 오전 3시에 만료된 블랙 리스트의 엑세스 토큰과 만료된 리프레시 토큰을 삭제하는 스케줄러
+    @Transactional
+    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
     public void cleanTokens() {
         LocalDateTime now = LocalDateTime.now();
         log.warn("토큰 정리 스케쥴러가 실행됩니다. 실행 시작 시간 : {}", now);

@@ -20,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -38,6 +39,7 @@ public class UserService {
     private final AccessTokenBlackListRepository accessTokenBlackListRepository;
 
     // 회원가입
+    @Transactional
     public void signup(SignupRequest signupRequest) {
         // 이메일과 비밀번호가 공백이 아닌지 확인
         // @Valid & @NotBlank 로 해당 체크 대체
@@ -69,6 +71,7 @@ public class UserService {
     }
 
     // 로그인
+    @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
         try {
             authenticationManager.authenticate(
@@ -119,6 +122,7 @@ public class UserService {
     }
 
     // 로그아웃(토큰 삭제)
+    @Transactional
     public void logout(String accessToken) {
         // 1. 해당 사용자의 리프레시 토큰 무효화
         // - DB에서 해당 사용자의 리프레시 토큰을 지운다.
@@ -140,6 +144,7 @@ public class UserService {
     }
 
     // 엑세스 토큰 재발급
+    @Transactional(readOnly = true)
     public RefreshResponse refresh(@Valid RefreshRequest refreshRequest) {
         String userRefreshToken = refreshRequest.getRefreshToken();
         // 1. 리프레시 토큰 위/변조 여부 검증
@@ -176,6 +181,7 @@ public class UserService {
     }
 
     // 접속자 정보 조회
+    @Transactional(readOnly = true)
     public MyInfoResponse getUserInfo(int userId) {
         // 1. 유저 아이디로 DB 조회함
         Optional<User> optionalUser = userRepository.findById(userId);
@@ -195,6 +201,7 @@ public class UserService {
     }
 
     // 회원 정보 수정
+    @Transactional
     public void updateUserInfo(int userId, UserUpdateRequest userUpdateRequest) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
@@ -219,6 +226,7 @@ public class UserService {
     }
 
     // 회원 탈퇴
+    @Transactional
     public void deleteUser(int userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {

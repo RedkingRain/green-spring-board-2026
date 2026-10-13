@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.LineNumberReader;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class BoardService {
     private LikeRepository likeRepository;
 
     // 전체 조회
+    @Transactional(readOnly = true)
     public Page<BoardResponse> getAllBoards(int  page, int size, String order) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -79,6 +81,7 @@ public class BoardService {
     }
 
     // 상세 조회
+    @Transactional(readOnly = true)
     public BoardResponse getBoard(int id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -113,6 +116,7 @@ public class BoardService {
     }
 
     // 본인 게시글 조회
+    @Transactional(readOnly = true)
     public Page<BoardResponse> getMyBoards(int page, int size, String order) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -158,6 +162,7 @@ public class BoardService {
     }
 
     // 삽입
+    @Transactional
     public int createBoard(BoardCreateRequest boardCreateRequest) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -179,6 +184,7 @@ public class BoardService {
     }
 
     // 수정
+    @Transactional
     public void updateBoard(int id, BoardUpdateRequest boardUpdateRequest) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -210,6 +216,7 @@ public class BoardService {
     }
 
     // 삭제
+    @Transactional
     public void deleteBoard(int id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -236,6 +243,7 @@ public class BoardService {
     }
 
     // 게시글 좋아요
+    @Transactional
     public void pressLike(int id) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         int userId = userRepository.findByUsername(username).getId();
@@ -274,6 +282,7 @@ public class BoardService {
     }
 
     // 게시글에 좋아요 누른 유저 정보 조회
+    @Transactional(readOnly = true)
     public LikeDetailResponse getLikeDetail(int id) {
         // 1. 이 게시글에 좋아요 누른 유저 정보들을 Like 테이블에서 싹 가져옴
         List<Like> likes = likeRepository.findByBoardId(id);
