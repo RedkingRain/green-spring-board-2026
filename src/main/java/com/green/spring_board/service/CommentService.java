@@ -12,6 +12,7 @@ import com.green.spring_board.repository.CommentRepository;
 import com.green.spring_board.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +31,10 @@ public class CommentService {
     @Transactional
     public void createComment(
             int id,
-            int userId,
             CommentCreateRequest commentCreateRequest
     ) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByUsername(username).getId();
         // 게시물 조회
         Optional<Board> optionalBoard = boardRepository.findById(id);
         if (optionalBoard.isEmpty()) {
@@ -85,18 +87,15 @@ public class CommentService {
 
     // 댓글 수정
     @Transactional
-    public void updateComment(int commentId, CommentUpdateRequest commentUpdateRequest, int userId) {
+    public void updateComment(int commentId, CommentUpdateRequest commentUpdateRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username);
+
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {
             throw new ResourceNotFoundException("요청한 댓글을 찾지 못했습니다.");
         }
         Comment comment = optionalComment.get();
-
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new UnauthenticatedException("로그인한 사용자를 찾을 수 없습니다.");
-        }
-        User user = optionalUser.get();
 
         if (comment.isDeleted()) {
             throw new ResourceNotFoundException("삭제된 댓글입니다.");
@@ -113,18 +112,15 @@ public class CommentService {
 
     // 댓글 삭제
     @Transactional
-    public void deleteComment(int commentId, int userId) {
+    public void deleteComment(int commentId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username);
+
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {
             throw new ResourceNotFoundException("요청한 댓글을 찾지 못했습니다.");
         }
         Comment comment = optionalComment.get();
-
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new UnauthenticatedException("로그인한 사용자를 찾을 수 없습니다.");
-        }
-        User user = optionalUser.get();
 
         if (comment.isDeleted()) {
             throw new ResourceNotFoundException("삭제된 댓글입니다.");

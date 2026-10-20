@@ -30,13 +30,7 @@ public class CommentController {
             @PathVariable int id,
             @Valid @RequestBody CommentCreateRequest commentCreateRequest
     ) {
-        HttpSession session = httpServletRequest.getSession();
-        if (session == null || session.getAttribute("userId") == null) {
-            throw new UnauthenticatedException("로그인이 필요합니다.");
-        }
-        int userId = (int) session.getAttribute("userId");
-
-        commentService.createComment(id, userId, commentCreateRequest);
+        commentService.createComment(id, commentCreateRequest);
 
         return ResponseEntity.ok(ApiResponse.ok());
     }
@@ -60,9 +54,8 @@ public class CommentController {
         if (session == null || session.getAttribute("userId") == null) {
             throw new UnauthenticatedException("로그인이 필요합니다.");
         }
-        int userId = (int) session.getAttribute("userId");
 
-        commentService.updateComment(id, commentUpdateRequest, userId);
+        commentService.updateComment(id, commentUpdateRequest);
         return ResponseEntity.ok(ApiResponse.ok());
     }
 
@@ -76,9 +69,8 @@ public class CommentController {
         if (session == null || session.getAttribute("userId") == null) {
             throw new UnauthenticatedException("로그인이 필요합니다.");
         }
-        int userId = (int) session.getAttribute("userId");
 
-        commentService.deleteComment(id, userId);
+        commentService.deleteComment(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.ok());
     }
 }
